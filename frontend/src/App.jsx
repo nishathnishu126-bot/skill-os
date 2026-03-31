@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {
-  Mail, Lock, Eye, EyeOff, ArrowRight, Github, Chrome, Zap,
+  Mail, Lock, Eye, EyeOff, ArrowRight, Zap,
   Bell, LayoutDashboard, BookOpen, Trophy, LogOut,
-  Star, Flame, Sparkles, Layers, Users,
+  Star, Flame, Sparkles, Layers, Users, User,
 } from "lucide-react";
 
 import { api } from "./api";
@@ -134,7 +134,6 @@ function Dashboard({ setPage, user }) {
     freeCodeCamp: "#16A34A", Medium: "#64748B",
   };
 
-  // Build heatmap cells from activity_log data (last 84 days = 12 weeks)
   const heatmapCells = Array.from({ length: 84 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (83 - i));
@@ -147,7 +146,6 @@ function Dashboard({ setPage, user }) {
 
   return (
     <div className="p-6 max-w-6xl mx-auto w-full space-y-6">
-      {/* Welcome */}
       <div className="relative bg-gradient-to-r from-indigo-900 to-purple-900 rounded-3xl p-7 overflow-hidden">
         <h1 className="text-2xl font-bold text-white mb-1">
           Good morning, {firstName}! 👋
@@ -166,7 +164,6 @@ function Dashboard({ setPage, user }) {
         </div>
       </div>
 
-      {/* Metric cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "Courses active",  value: inProgress.length,    sub: "in progress" },
@@ -183,21 +180,13 @@ function Dashboard({ setPage, user }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Heatmap */}
         <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-5">
           <p className="text-sm font-bold text-slate-900 mb-4">Activity — last 12 weeks</p>
           <div className="grid gap-[3px]" style={{ gridTemplateColumns: "repeat(12, 1fr)" }}>
             {heatmapCells.map((v, i) => (
-              <div
-                key={i}
-                className="aspect-square rounded-[2px]"
-                style={{
-                  background: v === 0 ? "#F1F5F9"
-                    : v === 1 ? "#C7D2FE"
-                    : v === 2 ? "#818CF8"
-                    : "#4338CA",
-                }}
-              />
+              <div key={i} className="aspect-square rounded-[2px]" style={{
+                background: v === 0 ? "#F1F5F9" : v === 1 ? "#C7D2FE" : v === 2 ? "#818CF8" : "#4338CA",
+              }} />
             ))}
           </div>
           <div className="flex items-center gap-2 mt-3 text-[10px] text-slate-400">
@@ -209,7 +198,6 @@ function Dashboard({ setPage, user }) {
           </div>
         </div>
 
-        {/* Platform progress */}
         <div className="bg-white border border-slate-200 rounded-2xl p-5">
           <p className="text-sm font-bold text-slate-900 mb-4">Platform progress</p>
           {Object.keys(platformTotals).length === 0 ? (
@@ -223,10 +211,8 @@ function Dashboard({ setPage, user }) {
                     <span>{pct}%</span>
                   </div>
                   <div className="w-full bg-slate-100 rounded-full h-2">
-                    <div
-                      className="h-2 rounded-full transition-all"
-                      style={{ width: `${pct}%`, background: platformColors[platform] ?? "#6366F1" }}
-                    />
+                    <div className="h-2 rounded-full transition-all"
+                      style={{ width: `${pct}%`, background: platformColors[platform] ?? "#6366F1" }} />
                   </div>
                 </div>
               ))}
@@ -235,7 +221,6 @@ function Dashboard({ setPage, user }) {
         </div>
       </div>
 
-      {/* Quick links */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: "My learning",   page: "my-learning",     Icon: BookOpen,  color: "bg-blue-50 text-blue-700"     },
@@ -243,11 +228,8 @@ function Dashboard({ setPage, user }) {
           { label: "Flashcards",    page: "flashcards",      Icon: Layers,    color: "bg-indigo-50 text-indigo-700" },
           { label: "Study buddies", page: "buddies",         Icon: Users,     color: "bg-green-50 text-green-700"   },
         ].map(({ label, page, Icon, color }) => (
-          <button
-            key={page}
-            onClick={() => setPage(page)}
-            className={`flex flex-col items-center gap-2 p-5 rounded-2xl border border-slate-200 hover:shadow-sm transition-all ${color}`}
-          >
+          <button key={page} onClick={() => setPage(page)}
+            className={`flex flex-col items-center gap-2 p-5 rounded-2xl border border-slate-200 hover:shadow-sm transition-all ${color}`}>
             <Icon className="w-6 h-6" />
             <span className="text-xs font-semibold">{label}</span>
           </button>
@@ -285,31 +267,11 @@ function Rewards({ user }) {
   );
 }
 
-// ── Login ──────────────────────────────────────────────────────
-function Login({ onLogin }) {
-  const [showPw, setShowPw] = useState(false);
-  const [email, setEmail]   = useState("");
-  const [pw, setPw]         = useState("");
-  const [error, setError]   = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      const data = await api.login(email, pw);
-      localStorage.setItem("skillos_token", data.access_token);
-      onLogin();
-    } catch (err) {
-      setError("Invalid email or password.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
+// ── Shared Auth Layout ─────────────────────────────────────────
+function AuthLayout({ children }) {
   return (
     <div className="min-h-screen w-full flex bg-white font-sans text-slate-900">
+      {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-slate-950 overflow-hidden flex-col justify-between p-12">
         <div className="relative z-10 flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
@@ -328,75 +290,237 @@ function Login({ onLogin }) {
             The unified operating system for self-directed learners.
           </p>
         </div>
-        <div className="relative z-10 text-sm text-slate-500 flex justify-between w-full">
+        <div className="relative z-10 text-sm text-slate-500">
           <span>© 2026 SkillOS</span>
         </div>
       </div>
 
+      {/* Right panel */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-24">
-        <div className="w-full max-w-md">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-slate-900 mb-2">Welcome back</h2>
-            <p className="text-slate-500">Sign in to continue your learning journey.</p>
-          </div>
-
-          {error && (
-            <div className="mb-4 px-4 py-3 bg-red-50 text-red-600 text-sm rounded-xl border border-red-200">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                  placeholder="you@example.com"
-                  className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type={showPw ? "text" : "password"} value={pw}
-                  onChange={e => setPw(e.target.value)} required
-                  placeholder="••••••••"
-                  className="w-full pl-9 pr-10 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
-                />
-                <button type="button" onClick={() => setShowPw(p => !p)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-            <button
-              type="submit" disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-60"
-            >
-              {loading ? "Signing in…" : <><span>Sign in</span><ArrowRight className="w-4 h-4" /></>}
-            </button>
-          </form>
-
-          <p className="mt-8 text-center text-sm text-slate-500">
-            No account?{" "}
-            <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
-              Sign up for free
-            </a>
-          </p>
-        </div>
+        <div className="w-full max-w-md">{children}</div>
       </div>
     </div>
+  );
+}
+
+// ── Login ──────────────────────────────────────────────────────
+function Login({ onLogin, onGoRegister }) {
+  const [showPw, setShowPw]   = useState(false);
+  const [email, setEmail]     = useState("");
+  const [pw, setPw]           = useState("");
+  const [error, setError]     = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const data = await api.login(email, pw);
+      localStorage.setItem("skillos_token", data.access_token);
+      onLogin();
+    } catch {
+      setError("Invalid email or password. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <AuthLayout>
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-slate-900 mb-2">Welcome back</h2>
+        <p className="text-slate-500">Sign in to continue your learning journey.</p>
+      </div>
+
+      {error && (
+        <div className="mb-4 px-4 py-3 bg-red-50 text-red-600 text-sm rounded-xl border border-red-200">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="email" value={email} onChange={e => setEmail(e.target.value)} required
+              placeholder="you@example.com"
+              className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+            />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type={showPw ? "text" : "password"} value={pw}
+              onChange={e => setPw(e.target.value)} required placeholder="••••••••"
+              className="w-full pl-9 pr-10 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+            />
+            <button type="button" onClick={() => setShowPw(p => !p)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+        <button type="submit" disabled={loading}
+          className="w-full flex items-center justify-center gap-2 py-3 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-60">
+          {loading ? "Signing in…" : <><span>Sign in</span><ArrowRight className="w-4 h-4" /></>}
+        </button>
+      </form>
+
+      <p className="mt-8 text-center text-sm text-slate-500">
+        No account?{" "}
+        <button onClick={onGoRegister}
+          className="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors">
+          Create one for free
+        </button>
+      </p>
+    </AuthLayout>
+  );
+}
+
+// ── Register ───────────────────────────────────────────────────
+function Register({ onLogin, onGoLogin }) {
+  const [showPw, setShowPw]     = useState(false);
+  const [name, setName]         = useState("");
+  const [email, setEmail]       = useState("");
+  const [pw, setPw]             = useState("");
+  const [pwConfirm, setPwConfirm] = useState("");
+  const [error, setError]       = useState("");
+  const [loading, setLoading]   = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+
+    if (pw !== pwConfirm) {
+      setError("Passwords do not match.");
+      return;
+    }
+    if (pw.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const data = await api.register(name, email, pw);
+      localStorage.setItem("skillos_token", data.access_token);
+      onLogin();
+    } catch (err) {
+      const msg = err.message ?? "";
+      if (msg.includes("already registered")) {
+        setError("That email is already registered. Try signing in.");
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <AuthLayout>
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-slate-900 mb-2">Create your account</h2>
+        <p className="text-slate-500">Start your learning journey today — it's free.</p>
+      </div>
+
+      {error && (
+        <div className="mb-4 px-4 py-3 bg-red-50 text-red-600 text-sm rounded-xl border border-red-200">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Name */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">Full name</label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text" value={name} onChange={e => setName(e.target.value)} required
+              placeholder="Jane Smith"
+              className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+            />
+          </div>
+        </div>
+
+        {/* Email */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="email" value={email} onChange={e => setEmail(e.target.value)} required
+              placeholder="you@example.com"
+              className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+            />
+          </div>
+        </div>
+
+        {/* Password */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type={showPw ? "text" : "password"} value={pw}
+              onChange={e => setPw(e.target.value)} required placeholder="Min. 6 characters"
+              className="w-full pl-9 pr-10 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+            />
+            <button type="button" onClick={() => setShowPw(p => !p)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Confirm Password */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">Confirm password</label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type={showPw ? "text" : "password"} value={pwConfirm}
+              onChange={e => setPwConfirm(e.target.value)} required placeholder="Re-enter password"
+              className={`w-full pl-9 pr-3 py-2.5 text-sm border rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition ${
+                pwConfirm && pw !== pwConfirm
+                  ? "border-red-300 focus:ring-red-300"
+                  : "border-slate-200"
+              }`}
+            />
+          </div>
+          {pwConfirm && pw !== pwConfirm && (
+            <p className="text-xs text-red-500 mt-1">Passwords don't match</p>
+          )}
+        </div>
+
+        <button type="submit" disabled={loading}
+          className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-all active:scale-[0.98] disabled:opacity-60 mt-2">
+          {loading ? "Creating account…" : <><span>Create account</span><ArrowRight className="w-4 h-4" /></>}
+        </button>
+      </form>
+
+      <p className="mt-8 text-center text-sm text-slate-500">
+        Already have an account?{" "}
+        <button onClick={onGoLogin}
+          className="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors">
+          Sign in
+        </button>
+      </p>
+    </AuthLayout>
   );
 }
 
 // ── Root App ───────────────────────────────────────────────────
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(!!localStorage.getItem("skillos_token"));
+  const [authPage, setAuthPage] = useState("login"); // "login" | "register"
   const [user, setUser]         = useState(null);
   const [page, setPage]         = useState("dashboard");
 
@@ -409,13 +533,23 @@ export default function App() {
     }
   }, [loggedIn]);
 
+  function handleLogin() {
+    setLoggedIn(true);
+    setAuthPage("login");
+  }
+
   function handleLogout() {
     localStorage.removeItem("skillos_token");
     setLoggedIn(false);
     setUser(null);
+    setPage("dashboard");
   }
 
-  if (!loggedIn) return <Login onLogin={() => setLoggedIn(true)} />;
+  if (!loggedIn) {
+    return authPage === "register"
+      ? <Register onLogin={handleLogin} onGoLogin={() => setAuthPage("login")} />
+      : <Login    onLogin={handleLogin} onGoRegister={() => setAuthPage("register")} />;
+  }
 
   const pageEl = {
     "dashboard":       <Dashboard setPage={setPage} user={user} />,
