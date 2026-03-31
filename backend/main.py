@@ -131,8 +131,7 @@ def create_resource(data: ResourceCreate, user_id: str = Depends(get_current_use
 @app.patch("/resources/{resource_id}")
 def update_resource(resource_id: str, data: ResourceUpdate,
                     user_id: str = Depends(get_current_user)):
-    # Only update fields that were actually provided
-    update_data = {k: v for k, v in data.dict().items() if v is not None}
+    update_data = data.dict(exclude_unset=True)  # only include fields actually sent
     if not update_data:
         raise HTTPException(400, "Nothing to update")
     result = supabase.table("resources").update(update_data)\
