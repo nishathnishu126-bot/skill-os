@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { Sparkles, ThumbsUp, ThumbsDown, Plus, Clock, Zap } from "lucide-react";
-import { RECOMMENDATIONS } from "../mockData";
+
 import { PlatformBadge, SectionHeader } from "./ui";
+import { useState, useEffect } from "react";
+import { api } from "../api";
+
+const [resources, setResources] = useState([]);
+useEffect(() => { api.resources().then(setResources); }, []);
 
 export default function Recommendations() {
   // dismissed tracks ids the user has hidden

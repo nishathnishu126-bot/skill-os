@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { Search, Filter, ExternalLink, CheckCircle2, Clock, BookOpen } from "lucide-react";
-import { MY_RESOURCES } from "../mockData";
 import { PlatformBadge, ProgressBar, SectionHeader } from "./ui";
+import { useState, useEffect } from "react";
+import { api } from "../api";
+
+const [resources, setResources] = useState([]);
+useEffect(() => { api.resources().then(setResources); }, []);
 
 const STATUS_TABS = ["all", "in-progress", "completed"];
 

@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { RotateCcw, CheckCircle2, Layers, ChevronRight, Flame } from "lucide-react";
-import { FLASHCARD_DECKS, FLASHCARDS } from "../mockData";
+import { useState, useEffect } from "react";
+import { api } from "../api";
+
+const [resources, setResources] = useState([]);
+useEffect(() => { api.resources().then(setResources); }, []);
 
 // Difficulty → next-review label (matches FSRS buckets)
 const RATINGS = [

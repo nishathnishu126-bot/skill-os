@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { Users, MessageCircle, Target, Zap, BookOpen, BarChart2 } from "lucide-react";
-import { BUDDY_MATCHES } from "../mockData";
+
 import { Avatar, SectionHeader } from "./ui";
+import { useState, useEffect } from "react";
+import { api } from "../api";
+
+const [resources, setResources] = useState([]);
+useEffect(() => { api.resources().then(setResources); }, []);
 
 const INTERACTION_MODES = [
   { icon: <BookOpen className="w-4 h-4" />, label: "Mutual teaching",    desc: "Take turns explaining concepts to each other" },
